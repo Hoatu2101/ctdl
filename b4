@@ -1,0 +1,130 @@
+#include <iostream>
+using namespace std;
+struct node
+{
+	int key;
+	node *left, *right;
+	int height;
+};
+void treeEmpty(node *&root) {
+	root = NULL;
+}
+node*create(int x) {
+	node *p = new node;
+	p->key = x;
+	p->right = NULL;
+	p->left = NULL;
+	p->height = 1;
+	return p;
+}
+int max(int a, int b) {
+	return a > b ? a : b;
+}
+int getHeight(node *root) {
+	if (root == NULL)
+		return 0;
+	return root->height;
+}
+void update(node *&root) {
+	if (root != NULL) {
+		root->height = 1 + max(getHeight(root->left), getHeight(root->right));
+	}
+}
+void rightRotate(node *&root) {
+	node *x = root->left;
+	root->left = x->right;
+	x->right = root;
+	update(root);
+	update(x);
+	root = x;
+}
+void LeftRotate(node *&root) {
+	node *x = root->right;
+	root->right = x->left;
+	x->left = root;
+	update(root);
+	update(x);
+	root = x;
+}
+void insertNode(node *&root, int x) {
+	if (root == NULL) {
+		root = create(x);
+	}
+	else if (root->key > x)
+		insertNode(root->left, x);
+	else if (root->key < x)
+		insertNode(root->right, x);
+	else
+		return;
+	update(root);
+	int val = getHeight(root->left) - getHeight(root->right);
+	if (val > 1 && root->left->key > x) {
+		rightRotate(root);
+	}
+	else if (val < -1 && root->right->key < x) {
+		LeftRotate(root);
+	}
+	else if (val >1 && root->left->key<x) {
+		LeftRotate(root->left);
+		rightRotate(root);
+
+	}
+	else if (val <-1 && root->right->key > x) {
+		rightRotate(root->right);
+		LeftRotate(root);
+	}
+}
+void LNR(node *root) {
+	if (root != NULL) {
+		LNR(root->left);
+		cout << root->key << " ";
+		LNR(root->right);
+	}
+}
+void NLR(node *root) {
+	if (root != NULL) {
+		cout << root->key << "(" << root->height << ")" << " ";
+		NLR(root->left);
+		NLR(root->right);
+	}
+}
+void delnote(node *&root,int data) {
+	if (root == NULL)
+		return;
+	node *cur = root;
+	node *par = NULL;
+	while (cur != NULL && cur->key != data) {
+		par = cur;
+		if (cur->key > data)
+			cur = cur->left;
+		else
+			cur = cur->right;
+	}
+	//truong hop 1
+	if (cur == NULL)
+		return;
+	if (cur->left == NULL || cur->right == NULL) {
+		node *temp;
+		if (cur->left != NULL)
+			temp = cur->left;
+		else
+			temp = cur->right;
+		if (par->key > data) {
+			par->right = temp;
+		}
+	}
+}
+int main() {
+	node *root;
+	treeEmpty(root);
+	insertNode(root, 40);
+	insertNode(root, 19);
+	insertNode(root, 60);
+	insertNode(root, 15);
+	insertNode(root, 7);
+	LNR(root);
+	
+	cout << endl;
+	NLR(root);
+	return 0;
+}
